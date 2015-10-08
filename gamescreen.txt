@@ -1,0 +1,335 @@
+mainScreen = class()
+
+function mainScreen:init(x)
+--    print("init_my_things in mainScreen")
+    self:init_my_things()
+end
+
+function mainScreen:init_my_things()
+--  print("Enter init_my_things")
+   goButton=GoButton(100,300,200,400,"GO", " ", " ")
+   goButton.action=function() self.goButtonHandler() end
+-- boxes is an array of box objects that display status of each fund
+-- iterate_boxes function runs through this array and updates status
+    boxes={} 
+
+-- TODO: Put button handler init in seperate function 
+    boxes[funds[GREEN]]=Box(100, 100, 200, 200, "GREEN",""," ")       
+    greenButtonUp=squareButton("greenButtonUp",{225,160},{40,40},{255,255,255,255},{62, 92, 51, 238},1)
+    greenButtonUp.action=function() self.greenButtonUpHandler() end
+    greenButtonDn=squareButton("greenButtonDn",{225,100},{40,40},{255,255,255,255},{62, 92, 51, 238},2)
+    greenButtonDn.action=function() self.greenButtonDnHandler() end
+    
+    boxes[funds[RED]]=Box(300, 100, 400, 200, "RED",""," ")
+    redButtonUp=squareButton("redButtonUp",{425,160},{40,40},{255,255,255,255},{255, 0, 2, 255},1)
+    redButtonUp.action=function() self.redButtonUpHandler() end
+    redButtonDn=squareButton("redButtonDn",{425,100},{40,40},{255,255,255,255},{255, 0, 2, 255},2)  
+    redButtonDn.action=function() self.redButtonDnHandler() end
+        
+    boxes[funds[BLUE]]=Box(500, 100, 600, 200, "BLUE",""," ")
+    blueButtonUp=squareButton("blueButtonUp",{625,160},{40,40},{255,255,255,255},{0, 14, 255, 170},1)
+    blueButtonUp.action=function() self.blueButtonUpHandler() end
+    blueButtonDn=squareButton("blueButtonDn",{625,100},{40,40},{255,255,255,255},{0, 14, 255, 170},2)
+    blueButtonDn.action=function() self.blueButtonDnHandler() end    
+    
+    new_amt_table={}
+    amt_table={}
+--  print("init_my_things GameScreen")
+--    test2Button=roundButton("Screen 2")
+--    test2Button.action=function () self:changeScreen() end
+--  print ("Exit init_my_things")
+end
+
+
+-- Activating prints in draw really slows down performance.
+function mainScreen:draw()
+    -- Codea does not automatically call this method
+--   print("Enter GameScreen draw")
+    background(255, 220, 0, 94)
+--    print("draw_controls")
+    self:draw_controls()
+--    print("draw_text")
+    self:draw_text()
+--    print("iterate_boxes")
+    self:iterate_boxes()
+--    print("Exit GameScreen draw")
+end
+
+function mainScreen:touched(touch)
+    -- Codea does not automatically call this method
+ --   print("mainScreen:touched")
+ -- GoButton touch handled here
+    goButton:touched(touch)
+ --   test2Button:touched(touch)
+    greenButtonUp:touched(touch)
+    greenButtonDn:touched(touch)
+    redButtonUp:touched(touch)
+    redButtonDn:touched(touch)
+    blueButtonUp:touched(touch)
+    blueButtonDn:touched(touch)
+end
+
+function mainScreen:draw_controls()
+-- goButton drawn here
+ textcolor = color(255, 255, 255, 255)
+  backcolor = color(0,0,0)
+   goButton:draw(textcolor,backcolor)
+end
+
+function mainScreen:draw_text()
+    pushStyle()
+    font ("Georgia")
+    fill (255)
+    fontSize(20)
+    textWrapWidth(300)
+    textMode(CORNER)
+-- need to parameterize the offsets here and in boxes
+    text("Current Amt: " .. amt,100,660)
+    text("Turn #: " .. turnCtr,100,635)
+    text("Green Allocation: " .. green_amt(),100,610) 
+    text("Red Allocation: " .. red_amt(),100,585)
+    text("Blue Allocation: " .. blue_amt(), 100, 560)
+
+    if turnCtr < 20 then
+-- Green Return        
+        return_pcnt=(new_amt_table[GREEN]/amt_table[GREEN]) 
+        percent_formatter:set(return_pcnt * 100)
+        text("Return: " .. percent_formatter:get() .."%", 400,610)
+-- Red Return 
+        return_pcnt= new_amt_table[RED]/amt_table[RED]
+        percent_formatter:set(return_pcnt * 100)
+        text("Return: " .. percent_formatter:get() .. "%", 400,585)
+-- Blue Return
+        return_pcnt=new_amt_table[BLUE] / amt_table[BLUE]
+        percent_formatter:set(return_pcnt*100)
+        text("Return: " .. percent_formatter:get() .. "%", 400,560)
+    end
+    popStyle()
+end 
+
+function mainScreen:changeScreen()
+--    print("ChangeScreen")
+   currScreen="NewScreen"
+end
+-- ============================================================================================================================
+-- iterate_boxes
+-- called from draw to paint boxes displaying fund amounts
+-- loop by funds[index] and call draw method on each object in boxes[funds[index]]
+-- =============================================================================================================================
+function mainScreen:iterate_boxes()
+
+ scolor = color(100, 100, 218, 255)
+ for i=1,#funds do
+--     print("iterate_boxes, for loop, i = " .. i)
+--     print("funds[i] = " .. funds[i])
+    if boxes[funds[i]]~= nil then
+--      ideally would have an array of colors indexed by GREEN, RED, BLUE set up in Constants 
+--      print("Try to set scolor in iterate_boxes")
+       if i == GREEN then
+            scolor=color(62, 92, 51, 238)
+       elseif i == RED then
+            scolor=color(255, 0, 2, 255)
+       elseif i == BLUE then
+            scolor=color(0, 14, 255, 170)
+       else
+            scolor=color(255,255,255)
+       end
+--     print("Call boxes draw")
+       boxes[funds[i]]:draw(scolor,scolor)
+--	   print("Just Drew box " .. i)
+	   end
+    end
+--  print("try to draw buttons")
+    greenButtonUp:draw()   
+    greenButtonDn:draw()
+    redButtonUp:draw()   
+    redButtonDn:draw()
+    blueButtonUp:draw()   
+    blueButtonDn:draw()
+
+end
+
+-- Calculate balances for each account and use my_formatter to round to dollars and cents.
+function green_amt()
+   localAmt=amt*GreenP/100    
+   my_formatter:set(localAmt)
+   return my_formatter:get()
+end
+
+function red_amt()
+   localAmt=amt*RedP/100    
+   my_formatter:set(localAmt)
+   return my_formatter:get()        
+end
+
+function blue_amt()
+   localAmt=amt*BlueP/100    
+   my_formatter:set(localAmt)
+   return my_formatter:get()     
+end
+
+-- Begin Button Handlers
+-- to do Wrap these in a seperate class.  invoke methods based on parameter from event handler.
+-- E.G.     greenButtonUp.action=function() self.invokeHandler("greenButtonUp") 
+
+function mainScreen:greenButtonUpHandler()
+    if GreenP + 5 > 100 then
+        print("GreenP all in")
+        GreenP = 100
+        RedP = 0
+        BlueP =0
+    else
+        GreenP = GreenP +5
+--        o_green=GreenP
+        print ("new greenp" .. GreenP)
+        if RedP - 5 >= 0 then
+            RedP = RedP - 5
+--            o_red=RedP
+            print ("new RedP" .. RedP)
+        else
+            print("Red too small")
+            movement=5-RedP
+            RedP=0
+            print ("new RedP" .. RedP)
+            BlueP=BlueP-movement
+            print ("new BlueP" .. BlueP)
+--            o_red=RedP
+--            o_blue=BlueP
+        end
+    end
+end
+
+function mainScreen:greenButtonDnHandler()
+    if GreenP - 5 < 0 then
+        print("GreenP all gone")
+--      Move RedP remainder of GreenP, less than 5 or 0
+        diff=GreenP
+        GreenP=0
+        RedP=RedP+diff 
+    else
+        GreenP = GreenP -5
+--        o_green=GreenP
+        print ("new greenp" .. GreenP)
+        if RedP + 5 <= 100 then
+            RedP = RedP + 5
+--            o_red=RedP
+            print ("new RedP" .. RedP)
+        else
+            print("Red too big")
+            movement=100-RedP
+            RedP=100
+            print ("new RedP" .. RedP)
+            BlueP=BlueP+movement
+            print ("new BlueP" .. BlueP)
+--            o_red=RedP
+--            o_blue=BlueP
+        end
+    end    
+end
+
+function mainScreen:redButtonUpHandler()
+    if RedP + 5 > 100 then
+        print("Redp all in")
+        GreenP = 0
+        RedP = 100
+        BlueP =0
+    else
+        RedP = RedP +5
+        print ("new RedP ".. RedP)
+        if BlueP - 5 >= 0 then
+            BlueP = BlueP - 5
+            print ("new BlueP" .. BlueP)
+        else
+            print("Blue too small")
+            movement=5-BlueP
+            BlueP=0
+            print ("new BlueP" .. BlueP)
+            GreenP=GreenP-movement
+            print ("new GreenP" .. GreenP)
+        end
+    end  
+end
+function mainScreen:redButtonDnHandler()
+    if RedP - 5 < 0 then
+        print("RedP all gone")
+--      Move BlueP remainder of RedP, less than 5 or 0
+        diff=RedP
+        RedP=0
+        BlueP=BlueP+diff 
+    else
+        RedP = RedP -5
+        print ("new RedP" .. RedP)
+        if BlueP + 5 <= 100 then
+            BlueP = BlueP + 5
+--            o_red=RedP
+            print ("new RedP" .. RedP)
+        else
+            print("Blue too big")
+            movement=100-BlueP
+            BlueP=100
+            print ("new BlueP" .. BlueP)
+            GreenP=GreenP+movement
+            print ("new GreenP" .. BlueP)
+        end
+    end    
+end
+
+function mainScreen:blueButtonUpHandler()
+    if BlueP + 5 > 100 then
+        print("BlueP all in")
+        GreenP = 0
+        RedP = 0
+        BlueP = 100
+    else
+        BlueP = BlueP +5
+        print ("new BlueP ".. BlueP)
+        if GreenP - 5 >= 0 then
+            GreenP =GreenP - 5
+            print ("new GreenP" .. GreenP)
+        else
+            print("GreenP too small")
+            movement=5-GreenP
+            GreenP=0
+            print ("new GreenP" .. GreenP)
+            RedP=RedP-movement
+            print ("new GreenP" .. GreenP)
+        end
+    end
+end
+
+function mainScreen:blueButtonDnHandler()
+    if BlueP - 5 < 0 then
+        print("BlueP all gone")
+--      Move BlueP remainder of RedP, less than 5 or 0
+        diff=BlueP
+        BlueP=0
+        GreenP=GreenP+diff 
+    else
+        BlueP = BlueP -5
+        print ("new BlueP " .. BlueP)
+        if GreenP + 5 <= 100 then
+            GreenP = GreenP + 5
+            print ("new GreenP" .. GreenP)
+        else
+            print("Green too big")
+            movement=100-GreenP
+            GreenP=100
+            print ("new GreenP" .. GreenP)
+            RedP=RedP+movement
+            print ("new RedP" .. RedP)
+        end
+    end 
+end
+
+function mainScreen:goButtonHandler()
+print("Enter goButtonHandler")
+    if turnCtr > 0 then
+	     debug=false
+         solve=iterate_funcs(debug)
+         print_table(solve,debug)
+         amt=sum_table(solve)
+         turnCtr=turnCtr-1
+    end
+print("Leave goButtonHandler")
+end
+-- end button handlers

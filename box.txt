@@ -1,0 +1,103 @@
+-- =======================================================
+-- This class taken from https://gist.github.com/devilstower/1687108
+-- =======================================================
+--   Class Box
+--      method init (x1, y1, x2, y2, title)
+--             int x1, int y1 = lower left corner
+--             int x2, int y2 = upper right corner
+--             str title = label on box
+--      method setTitle (newTitle)
+--             str newTitle
+--      method addSeries(name, len, min, max, sym, size, thick, clr)
+--             TBD
+--      method draw(fillColor, strokeColor)
+--             TBD
+--      Objects Used
+--             Frame
+Box = class()
+ 
+ 
+--  method init (x1, y1, x2, y2, top,mid,bot)
+--         int x1, int y1 = lower left corner
+--         int x2, int y2 = upper right corner
+--         str top = top label on box
+--         str mid = middle label on box
+--         str bot = bottom label on box
+--  Called when Box is constructed
+
+function Box:init(x1, y1, x2, y2, top, mid, bot)
+    -- define two parts of the box, an inner outer frame and an inner frame
+--    print("init Box " .. top)
+--    print("create outer")
+    self.outer = Frame(x1, y1, x2, y2)  
+--    print("create inner")
+    self.inner = Frame(x1 + 20, y1 + 20, x2 - 10, y2 - 40)
+    -- Fill in labels for the box
+    self.top = top
+	self.mid = mid
+	self.bot = bot
+
+    -- Additional Labels
+    self.xlabel = ""
+    self.ylabel = ""
+end
+--  method setTitle (newTitle)
+--         str newTitle
+-- Called to change the title string of a box instance
+
+function Box:setTop(top)
+-- set top label    
+    self.top=top
+end
+ 
+ function Box:setMid(mid)
+-- set middle label    
+    self.mid=mid
+end
+
+function Box:setBot(bot)
+-- set bottom label    
+    self.bot=bot
+end
+ 
+function Box:addSeries(name, len, min, max, sym, size, thick, clr)
+    local i
+    self.top=name
+end
+ 
+ -- method draw(fillColor, strokeColor)
+
+function Box:draw(fillColor,strokeColor)
+    local i, dx, dy, x, y, ox, oy
+--    print("Enter Box:draw")
+--    print("fillColor.r = " .. fillColor.r)
+--  save coordinates and style    
+    pushMatrix()
+    pushStyle()
+--
+    fill(fillColor)
+--    print(self.top)
+    self.outer:draw()
+--    print("after self.outer:draw()")
+    self.outer:gloss()
+    strokeWidth(1)
+
+--print("Before text top")
+    text(self.top, self.outer:midx(), self.outer.y2 - 20)
+--print("Before text mid")
+
+-- BIG ERROR BIG ERROR BIG ERROR TO DO to do todo 
+
+-- TO DO text to see if mid or bot are nil or not
+--	text(self.mid,self.outer:midx(), self.outer.y2 - 40)
+--   print("Before text bot  x = " .. self.outer:midx() .. " y = " .. self.outer.y2 - 60)
+	text (self.bot, self.outer:midx(), self.outer.y2 - 87)
+--    print("Before self.inner:draw()")
+    self.inner:draw()
+--    print("After self.inner:draw()")
+--  Restore style and grid
+    popStyle()
+    popMatrix()
+end
+
+

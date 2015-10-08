@@ -1,0 +1,389 @@
+-- TDDPiece1
+-- Simulation of performance of three stock funds.
+-- ========================================================================================================
+-- Objects 
+-- Created setup/init_globals
+-- Formatter (my_formatter) - object initialized to round money amounts to 2 decimal places.
+--
+-- Created setup/curr
+-- Distribution (Green, Red, Blue) - An object containing a table of possible investment returns.  Calling pick randomly yields a possible
+-- return.
+-- Box(Green,Red,Blue) - graphical object that displays the current allocation of investment fund total allocated to each fund
+--
+-- Created setup/init_distributions/Distribution/init
+-- Di - initialized with a number of sides.  Randomly returns a number between 1 and n.
+--
+-- Created setup
+-- parameter(Go Again) - button that causes 
+-- investment amt to be allocated and then a return from each distribution picked, the screen updated, and the global amt is revised.
+-- parameters(GreenP, RedP, BlueP) - control percentage of investment funds allocated to each fund (listed in Global Array funds)
+-- ==============================================================================================================
+-- Functions called by Codea
+-- ==============================================================================================================
+-- Codea Entry function
+-- Use this function to perform your initial setup
+-- functions called:
+-- init_globals()
+-- init my_things()
+-- init_parameters()
+-- ===============================================================================================================================
+function setup()
+    init_globals()
+    init_my_things()
+    init_parameters()
+end
+-- ==================================================================================================================
+-- Codea draw function
+-- This function gets called once every frame
+-- objects called:
+-- newScreen
+-- functions called:
+-- draw function of active scree 
+-- =================================================================================================================
+
+function draw()
+    if currScreen=="GameScreen" then
+        gameScreen:draw()
+    else
+        newScreen:draw()        
+    end
+end
+-- ===========================================================================================================================
+-- touched functions
+-- ========================================================================================================
+-- 
+-- ================================================================================================================
+function touched(touch)
+    if currScreen=="GameScreen" then
+        gameScreen:touched(touch) 
+    else
+        newScreen:touched(touch)   
+    end
+end
+
+-- ===========================================================================================================================
+-- support functions
+-- ========================================================================================================
+-- init_globals
+-- initilize variables used throughout main
+-- ================================================================================================================
+function init_globals()
+  debug=false
+   params_painted=true
+   param_changed=false
+-- funds and indexes    
+    funds={"green","red","blue"}
+    GREEN=1
+    RED=2
+    BLUE=3
+-- set values for param percents
+    GreenP=33
+    RedP=33
+    BlueP=34
+--  starting money    
+    amt=1000
+--  turnCtr - number of times to iterate
+    turnCtr=20
+    currScreen="GameScreen"
+end
+
+-- =============================================================================================================================
+-- init_my_things
+-- initialize objects and tables
+-- Formatter
+-- Distribution
+-- iterate_func table
+-- boxes table
+-- ============================================================================================================================
+function init_my_things()
+    my_formatter=Formatter(2)
+    percent_formatter=Formatter(0)
+    Green=Distribution({.8,.9,1.1,1.1,1.2,1.4})
+    Red=Distribution({.05,.2,1,3,3,3})
+    Blue=Distribution({.95,1,1,1,1,1.1})
+
+    iterate_func={}
+    iterate_func[funds[GREEN]]=function (amt) return Green:pick(debug)*green_amt() end
+    iterate_func[funds[RED]]=function (amt) return Red:pick(debug)*red_amt() end
+    iterate_func[funds[BLUE]]=function (amt) return Blue:pick(debug)*blue_amt() end
+    new_amt_table={}
+    amt_table={}
+
+-- create windows for 
+    newScreen=greenScreen()
+	print("Create mainscreen")
+    gameScreen=mainScreen()
+end
+
+
+-- ==============================================================================================================================
+-- init_parameters
+-- set up buttons and sliders
+-- =============================================================================================================================
+function init_parameters()
+    parameter.action("Go Again",go_again)
+    -- The change routine is called as the parameters are created.
+ --   parameter.integer('GreenP', 0,100,o_green,change_green)
+ --   parameter.integer('RedP',   0,100,o_red,  change_red)
+ --   parameter.integer('BlueP',  0,100,o_blue, change_blue)
+end
+
+-- ============================================================================================================================
+-- go_again
+-- event handler for button to take turn
+-- 
+-- ============================================================================================================================
+function go_again()
+    if turnCtr > 0 then
+       turn(false)
+    end
+end
+-- ============================================================================================================================
+-- turn
+-- recompute amt for funds.
+-- call iterate_funcs to load table solve with
+-- call print_table to
+-- call sum_table to load amt with
+-- =============================================================================================================================
+function turn(debug)
+  if debug == true then print("enter turn") end
+  solve=iterate_funcs(debug)
+  print_table(solve,debug)
+  amt=sum_table(solve)
+  turnCtr=turnCtr-1
+  if debug == true then
+    print("Current funds is " .. amt)
+  end
+end
+
+-- ============================================================================================================================
+-- iterate_funcs
+-- call alloc_amt to load table w
+
+-- ============================================================================================================================
+function iterate_funcs(debug)
+    print("enter iterate_funcs")
+    amt_table=alloc_amt()
+	-- debug function print's amt_table if 2nd paramter is true
+    print_table(amt_table,false)
+    soln={}
+    for i=1,#funds do
+        soln[i]=iterate_func[funds[i]](amt_table[i])
+        my_formatter:set(soln[i])
+        soln[i]=my_formatter:get()
+		debug=true
+        if debug == true then
+            print ("iterate_func["..i.."] sets boxes[" .. funds[i] .. "] = " .. soln[i])
+        end
+		print("funds[i] = " .. funds[i])
+		print("soln[i] = " .. soln[i])
+        boxes[funds[i]]:setBot(soln[i])
+    end 
+    new_amt_table=soln
+    return soln
+end
+-- ============================================================================================================================
+--   print_table
+--  debug function that calculates and prints fund percent allocation * new_amt_held
+-- ============================================================================================================================
+function print_table(table,debug)
+--    print("enter print_table")
+    if debug==false then
+        return
+    end
+    for i=1, #table do
+  --    print ("table[" .. i .. "] = " .. table[i])
+        if i == GREEN then
+            print("" .. GreenP/100 .. " * " .. amt .. " = " .. amt_table[i])
+        elseif i == RED then
+            print("" .. RedP/100 .. " * " .. amt .. " ,= " .. amt_table[i])
+        elseif i == BLUE then
+            print("" .. BlueP/100 .. " * " .. amt .. " = " .. amt_table[i])
+        else
+                print ("UNDEFINED TABLE ENTRY")
+        end
+    end
+end
+
+-- ============================================================================================================================
+-- alloc_amt
+-- return table of amounts - rounded to two decimal places - in each fund.
+-- create amt_table
+-- loop through funds
+-- calculate new fund amount based on current funds stored in global variable amt
+-- and store the fund amount in amt_table.
+-- Call formatter object to round to 2 decimal places
+-- ==============================================================================================================================
+function alloc_amt()
+    amt_table={}
+    for i=1, #funds do
+--      ideally would have an array of parameters 
+        if i == GREEN then
+            amt_table[i]=green_amt()
+        elseif i == RED then
+            amt_table[i]=red_amt()
+        elseif i == BLUE then
+            amt_table[i]=blue_amt()
+        else -- more types of funds than defined parameters
+            amt_table[i]=nil
+        end
+        if amt_table[i]~=nil then
+            my_formatter:set(amt_table[i])
+            amt_table[i]=my_formatter:get()
+        end
+    end
+    return amt_table
+end
+
+-- ============================================================================================================================
+-- sum_table
+-- ============================================================================================================================
+function sum_table (table)
+    sum=0
+    for i=1,#table do
+        sum=sum+table[i]
+    end
+    return sum
+end
+
+-- ============================================================================================================================
+-- Event handlers change_(green,red,blue) are invoked from parameters GreenP, RedP, and BlueP.  These handlers were written
+-- to control the parameters sent to a single handle_event handler, that used a params array to indicate how much each parameter needed to change 
+-- whenever the user swiped the handler.
+-- Was getting a 'math with nil' error if I tried to use params array to access parameter instead of calling directly.
+-- Because of this need a different event handlers to make sure the sum of the parameters controls always = 100 rather than
+-- a single event handler controlled by parameterized event.
+--
+-- change amount of total shown in boxes
+-- ============================================================================================================================
+
+--function change_green()
+--    if GreenP == nil or RedP == nil or BlueP == nil or params_painted==false then
+--        return
+--    end    
+--    diff=o_green-GreenP
+--    params={GreenP,RedP,BlueP}
+--    handle_green_event(params,diff)
+--    reset_old()
+   -- paramChange=true
+--    if GreenP + RedP + BlueP ~= 100 then
+--        print ("Error in change_green")
+--    end
+--    return
+--end
+
+--function change_red()
+--    if GreenP == nil or RedP == nil or BlueP == nil or params_painted==false then
+--        return
+--    end    
+--    diff=o_red-RedP
+--    params={RedP, BlueP, GreenP}
+--    handle_red_event(params,diff)
+--    reset_old()
+--    if GreenP + RedP + BlueP ~= 100 then
+--        print ("Error in change_red" .. RedP)
+--    end
+--    return
+--end 
+
+--function change_blue()
+--    if GreenP == nil or RedP == nil or BlueP == nil or params_painted==false then
+--        return
+--    end    
+--    diff=o_blue-BlueP
+--    params={BlueP, GreenP, RedP}
+--    handle_blue_event(params,diff)
+--    reset_old()
+--    if GreenP + RedP + BlueP ~= 100 then
+--        print ("Error in change_blue")
+--    end
+--    return
+--end
+
+--function handle_green_event(params,diff)
+--    params_painted=false
+--    movement_diff=params[2] + diff
+--    if diff < 0 then -- GreenP is getting bigger so other params need to get smaller
+-- hack  When parameter moves too fast the movement_diff gets out of sync with the params        
+--        if GreenP==100 then
+--            RedP=0
+--            BlueP=0
+--        elseif movement_diff < 0 then -- decrease both parameters
+--           RedP = 0
+--           BlueP=  params[2] + movement_diff + params[3]  -- decrease params[3] by difference left from params[2] 
+--        else -- just decrease RedP
+--           RedP=movement_diff
+--        end
+--    else -- GreenP is getting smaller
+--        if movement_diff > 100 then -- increase both parameters
+--            RedP = 100
+--            BlueP= movement_diff - params[2] + params[3]
+--        else
+--            RedP=movement_diff
+--        end
+--    end
+--end
+
+--function handle_red_event(params,diff)
+--    params_painted=false
+--    movement_diff=params[2]+ diff
+--    if diff < 0 then -- RedP is getting bigger so other params need to get smaller
+-- hack  When parameter moves too fast the movement_diff gets out of sync with the params        
+--        if RedP==100 then
+--            BlueP=0
+--            GreenP=0
+--        elseif movement_diff < 0 then -- decrease both parameters
+--            BlueP = 0
+--            GreenP=  params[2] + movement_diff + params[3]  -- decrease params[3] by difference left from params[2] 
+--        else -- params[2] big enough
+--           BlueP= movement_diff
+--        end
+--    else -- New value is getting smaller
+--        movement_diff=params[2]+ diff
+--        if movement_diff > 100 then -- increase both parameters
+--            BlueP = 100
+--            GreenP= movement_diff - params[2] + params[3]
+--        else
+--            BlueP=movement_diff
+--        end
+--    end
+--end
+
+--function handle_blue_event(params,diff)
+--    params_painted=false
+--    movement_diff=params[2]+ diff
+--    if diff < 0 then -- New value is getting bigger
+-- hack  When parameter moves too fast the movement_diff gets out of sync with the params  
+--        if BlueP==100 then
+--            GreenP=0
+--            RedP=0
+--        elseif movement_diff < 0 then -- decrease both parameters
+--            GreenP = 0
+--            RedP=  params[2] + movement_diff + params[3]  -- decrease params[3] by difference left from params[2] 
+--        else -- params[2] big enough
+--           GreenP=movement_diff
+--        end
+--    else -- New value is getting smaller
+--        if movement_diff > 100 then -- increase both parameters
+--            GreenP = 100
+--            RedP= movement_diff - params[2] + params[3]
+--        else
+--            GreenP=movement_diff
+--        end
+--    end
+--end
+
+-- ============================================================================================================================
+-- When parameters are changed using slide bar handler calls this routine.
+-- This routine sets the old_params to the new ones after the change has been handled.
+-- ============================================================================================================================
+
+--function reset_old()
+-- use text to print differences
+--    o_green=GreenP
+--    o_red=RedP
+--    o_blue=BlueP
+--    params_painted=true
+--end
+
+  

@@ -1,0 +1,32 @@
+greenScreen = class()
+
+function greenScreen:init(x)
+    -- you can accept and set parameters here
+    self.x = x
+    ctr=0
+    gstest2Button=roundButton("gstest2")
+    gstest2Button.action=function () currScreen="GameScreen"  end
+end
+
+function greenScreen:draw()
+ 
+    -- Codea does not automatically call this method
+   -- This sets a dark background color 
+    background(40, 40, 50)
+    -- This sets the line thickness
+    strokeWidth(5)
+    self.draw_controls()
+    gstest2Button.color=color(62, 92, 51, 238)
+end
+
+function greenScreen:touched(touch)
+    -- Codea does not automatically call this method
+ --   print("greenScreen Touched")
+    gstest2Button:touched(touch)
+end
+
+function greenScreen:draw_controls()
+    gstest2Button.ctr=vec2(500,600)
+    gstest2Button.radius=100
+    gstest2Button:draw()   
+end

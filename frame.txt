@@ -1,0 +1,147 @@
+-- =======================================================
+-- This class taken from https://gist.github.com/devilstower/1687108
+-- =======================================================
+Frame = class()
+-- Frame 
+-- a simple rectangle for holding controls.
+-- ====================
+--   Class Box
+--      method init(x1, y1, x2, y2)
+--             int x1, int y1 = lower left corner
+--             int x2, int y2 = upper right corner
+--      method inset(dx, dy)
+--      method offset(dx, dy)
+--          int dx, dy - differences for x and y coordinates of the frame
+--      method draw()
+--      method gloss(baseclr)
+--          color baseclr or nil
+--      method touched(touch)
+--
+--      method ptIn(x, y)
+--             TBD
+--      method width()
+--             TBD
+--      method height()
+--             TBD
+--      method midx()
+--             TBD
+--      method midy()
+--             TBD
+--      Objects Used
+--             NONE
+
+function Frame:init(x1, y1, x2, y2)
+--    print("Frame:init " .. x1)
+    self.x1 = x1
+--    print("Frame:init self.x1 " .. self.x1)
+    self.x2 = x2
+    self.y1 = y1
+    self.y2 = y2
+end
+
+--  method inset(dx, dy)
+--  method offset(dx, dy)
+--      Calculate coordinates inside or outside of frame
+--      int dx, dy - differences for x and y coordinates of the frame
+function Frame:inset(dx, dy)
+    self.x1 = self.x1 + dx
+    self.x2 = self.x2 - dx
+    self.y1 = self.y1 + dy
+    self.y2 = self.y2 - dy
+end
+
+function Frame:offset(dx, dy)
+    self.x1 = self.x1 + dx
+    self.x2 = self.x2 + dx
+    self.y1 = self.y1 + dy
+    self.y2 = self.y2 + dy
+end
+-- method draw()
+-- paint simple rectangle
+function Frame:draw()
+--    print("Enter Frame:draw()")
+--    print("self.x1 = " .. self.x1)
+    pushStyle()
+    rectMode(CORNERS)
+    rect(self.x1, self.y1, self.x2, self.y2)
+    popStyle()
+--    print("exit Frame draw")
+end
+
+--  method gloss(baseclr)
+--      color baseclr or nil
+--      Adjust color in frame.  Dark on Top and Bottom, light in Center.
+function Frame:gloss(baseclr)
+    local i, t, r, g, b, y
+    pushStyle()
+    if baseclr == nil then baseclr = color(194, 194, 194, 255) end
+    fill(baseclr)
+    rectMode(CORNERS)
+    rect(self.x1, self.y1, self.x2, self.y2)
+    r = baseclr.r
+    g = baseclr.g
+    b = baseclr.b
+    for i = 1 , self:height() / 2 do
+        r = r - 1
+        g = g - 1
+        b = b - 1
+        stroke(r, g, b, 255)
+        y = (self.y1 + self.y2) / 2
+        line(self.x1, y + i, self.x2, y + i)
+        line(self.x1, y - i, self.x2, y - i)
+    end
+    popStyle()
+end
+-- method shade(base, step)
+-- ??what does base - i * step do???
+--     color base shade for color (see stroke)
+--     int step number of steps you want stroke lightened?
+-- change color from left to right
+--
+function Frame:shade(base, step)
+    pushStyle()
+    strokeWidth(1)
+    for y = self.y1, self.y2 do
+        i = self.y2 - y
+        stroke(base - i * step, base - i * step, base - i * step, 255)
+        line(self.x1, y, self.x2, y)
+    end
+    popStyle()
+end
+
+function Frame:touched(touch)
+    if touch.x >= self.x1 and touch.x <= self.x2 then
+        if touch.y >= self.y1 and touch.y <= self.y2 then
+            return true
+        end
+    end
+    return false
+end
+
+function Frame:ptIn(x, y)
+    if x >= self.x1 and x <= self.x2 then
+        if y >= self.y1 and y <= self.y2 then
+            return true
+        end
+    end
+    return false
+end
+
+function Frame:width()
+    return self.x2 - self.x1
+end
+
+function Frame:height()
+    return self.y2 - self.y1
+end
+
+function Frame:midx()
+--    print("Enter Frame:midx()")
+--    print("self.x1 = " .. self.x1)
+    return (self.x1 + self.x2) / 2
+end
+
+function Frame:midy()
+    return (self.y1 + self.y2) / 2
+end
+
