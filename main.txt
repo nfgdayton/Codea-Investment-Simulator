@@ -111,7 +111,7 @@ function init_my_things()
 
 -- create windows for 
     newScreen=greenScreen()
-	print("Create mainscreen")
+--	print("Create mainscreen")
     gameScreen=mainScreen()
 end
 
@@ -162,7 +162,7 @@ end
 
 -- ============================================================================================================================
 function iterate_funcs(debug)
-    print("enter iterate_funcs")
+ --   print("enter iterate_funcs")
     amt_table=alloc_amt()
 	-- debug function print's amt_table if 2nd paramter is true
     print_table(amt_table,false)
@@ -171,12 +171,11 @@ function iterate_funcs(debug)
         soln[i]=iterate_func[funds[i]](amt_table[i])
         my_formatter:set(soln[i])
         soln[i]=my_formatter:get()
-		debug=true
         if debug == true then
             print ("iterate_func["..i.."] sets boxes[" .. funds[i] .. "] = " .. soln[i])
         end
-		print("funds[i] = " .. funds[i])
-		print("soln[i] = " .. soln[i])
+--		print("funds[i] = " .. funds[i])
+--		print("soln[i] = " .. soln[i])
         boxes[funds[i]]:setBot(soln[i])
     end 
     new_amt_table=soln

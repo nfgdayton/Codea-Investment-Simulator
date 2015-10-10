@@ -89,11 +89,18 @@ function Box:draw(fillColor,strokeColor)
 -- BIG ERROR BIG ERROR BIG ERROR TO DO to do todo 
 
 -- TO DO text to see if mid or bot are nil or not
---	text(self.mid,self.outer:midx(), self.outer.y2 - 40)
+
 --   print("Before text bot  x = " .. self.outer:midx() .. " y = " .. self.outer.y2 - 60)
 	text (self.bot, self.outer:midx(), self.outer.y2 - 87)
---    print("Before self.inner:draw()")
+    -- color in inner box
     self.inner:draw()
+	-- text for mid in white over inner box
+	if self.mid ~= nil then
+       pushStyle()
+       fill(color(255,255,255))
+	   text(self.mid,self.outer:midx(), self.outer.y2 - 60)
+       popStyle()    
+	end
 --    print("After self.inner:draw()")
 --  Restore style and grid
     popStyle()

@@ -46,11 +46,11 @@ function GoButton:hit(p)
 end
 
 function GoButton:touched(touch)
-    -- Codea does not automatically call this method
---    print("enter GoButton:touched")
+-- Codea does not automatically call this method
+--     print("enter GoButton:touched")
     if touch.state == ENDED and
-       self:hit(vec2(touch.x,touch.y)) then
-        print("Hit for goButton")
+        self:hit(vec2(touch.x,touch.y)) then
+--      print("Hit for goButton")
         if self.action then
             self.action()
         end

@@ -50,7 +50,17 @@ function mainScreen:draw()
     self:draw_controls()
 --    print("draw_text")
     self:draw_text()
---    print("iterate_boxes")
+--    print("set caption on boxes")
+-- print need to move this to initialization and event handler
+	if boxes[funds[GREEN]] ~= nil then
+--	   print("Call setBot")
+       boxes[funds[GREEN]]:setMid(greenPercentStr)
+	   boxes[funds[GREEN]]:setBot(green_amt())
+	   boxes[funds[RED]]:setMid(redPercentStr)
+	   boxes[funds[RED]]:setBot(red_amt())
+	   boxes[funds[BLUE]]:setMid(bluePercentStr)
+	   boxes[funds[BLUE]]:setBot(blue_amt())
+	end
     self:iterate_boxes()
 --    print("Exit GameScreen draw")
 end
@@ -71,15 +81,15 @@ end
 
 function mainScreen:draw_controls()
 -- goButton drawn here
- textcolor = color(255, 255, 255, 255)
-  backcolor = color(0,0,0)
+   textcolor = color(0, 0, 0, 255)
+   backcolor = color(0,0,0)
    goButton:draw(textcolor,backcolor)
 end
 
 function mainScreen:draw_text()
     pushStyle()
     font ("Georgia")
-    fill (255)
+    fill (textcolor)
     fontSize(20)
     textWrapWidth(300)
     textMode(CORNER)
@@ -91,17 +101,21 @@ function mainScreen:draw_text()
     text("Blue Allocation: " .. blue_amt(), 100, 560)
 
     if turnCtr < 20 then
--- Green Return        
+-- Green Return     
+--print("Recompute return_pcnt for Green")   
         return_pcnt=(new_amt_table[GREEN]/amt_table[GREEN]) 
         percent_formatter:set(return_pcnt * 100)
+	    greenPercentStr= GreenP .. "%"
         text("Return: " .. percent_formatter:get() .."%", 400,610)
 -- Red Return 
         return_pcnt= new_amt_table[RED]/amt_table[RED]
         percent_formatter:set(return_pcnt * 100)
+		redPercentStr= RedP .. "%"	
         text("Return: " .. percent_formatter:get() .. "%", 400,585)
 -- Blue Return
         return_pcnt=new_amt_table[BLUE] / amt_table[BLUE]
         percent_formatter:set(return_pcnt*100)
+	    bluePercentStr= BlueP .. "%"		
         text("Return: " .. percent_formatter:get() .. "%", 400,560)
     end
     popStyle()
@@ -174,18 +188,17 @@ end
 
 function mainScreen:greenButtonUpHandler()
     if GreenP + 5 > 100 then
-        print("GreenP all in")
+--      print("GreenP all in")
         GreenP = 100
         RedP = 0
         BlueP =0
     else
         GreenP = GreenP +5
---        o_green=GreenP
-        print ("new greenp" .. GreenP)
+--      o_green=GreenP
+--      print ("new greenp" .. GreenP)
         if RedP - 5 >= 0 then
             RedP = RedP - 5
---            o_red=RedP
-            print ("new RedP" .. RedP)
+--          print ("new RedP" .. RedP)
         else
             print("Red too small")
             movement=5-RedP
@@ -201,19 +214,17 @@ end
 
 function mainScreen:greenButtonDnHandler()
     if GreenP - 5 < 0 then
-        print("GreenP all gone")
+--      print("GreenP all gone")
 --      Move RedP remainder of GreenP, less than 5 or 0
         diff=GreenP
         GreenP=0
         RedP=RedP+diff 
     else
         GreenP = GreenP -5
---        o_green=GreenP
-        print ("new greenp" .. GreenP)
+--      print ("new greenp" .. GreenP)
         if RedP + 5 <= 100 then
             RedP = RedP + 5
---            o_red=RedP
-            print ("new RedP" .. RedP)
+--          print ("new RedP" .. RedP)
         else
             print("Red too big")
             movement=100-RedP
@@ -221,108 +232,105 @@ function mainScreen:greenButtonDnHandler()
             print ("new RedP" .. RedP)
             BlueP=BlueP+movement
             print ("new BlueP" .. BlueP)
---            o_red=RedP
---            o_blue=BlueP
         end
     end    
 end
 
 function mainScreen:redButtonUpHandler()
     if RedP + 5 > 100 then
-        print("Redp all in")
+--      print("Redp all in")
         GreenP = 0
         RedP = 100
         BlueP =0
     else
         RedP = RedP +5
-        print ("new RedP ".. RedP)
+--      print ("new RedP ".. RedP)
         if BlueP - 5 >= 0 then
             BlueP = BlueP - 5
-            print ("new BlueP" .. BlueP)
+--          print ("new BlueP" .. BlueP)
         else
-            print("Blue too small")
+--          print("Blue too small")
             movement=5-BlueP
             BlueP=0
-            print ("new BlueP" .. BlueP)
+--          print ("new BlueP" .. BlueP)
             GreenP=GreenP-movement
-            print ("new GreenP" .. GreenP)
+--          print ("new GreenP" .. GreenP)
         end
     end  
 end
 function mainScreen:redButtonDnHandler()
     if RedP - 5 < 0 then
-        print("RedP all gone")
+--     print("RedP all gone")
 --      Move BlueP remainder of RedP, less than 5 or 0
         diff=RedP
         RedP=0
         BlueP=BlueP+diff 
     else
         RedP = RedP -5
-        print ("new RedP" .. RedP)
+--      print ("new RedP" .. RedP)
         if BlueP + 5 <= 100 then
             BlueP = BlueP + 5
---            o_red=RedP
-            print ("new RedP" .. RedP)
+--          print ("new RedP" .. RedP)
         else
-            print("Blue too big")
+--          print("Blue too big")
             movement=100-BlueP
             BlueP=100
-            print ("new BlueP" .. BlueP)
+--          print ("new BlueP" .. BlueP)
             GreenP=GreenP+movement
-            print ("new GreenP" .. BlueP)
+--          print ("new GreenP" .. BlueP)
         end
     end    
 end
 
 function mainScreen:blueButtonUpHandler()
     if BlueP + 5 > 100 then
-        print("BlueP all in")
+--      print("BlueP all in")
         GreenP = 0
         RedP = 0
         BlueP = 100
     else
         BlueP = BlueP +5
-        print ("new BlueP ".. BlueP)
+--      print ("new BlueP ".. BlueP)
         if GreenP - 5 >= 0 then
             GreenP =GreenP - 5
-            print ("new GreenP" .. GreenP)
+--          print ("new GreenP" .. GreenP)
         else
-            print("GreenP too small")
+--          print("GreenP too small")
             movement=5-GreenP
             GreenP=0
-            print ("new GreenP" .. GreenP)
+--          print ("new GreenP" .. GreenP)
             RedP=RedP-movement
-            print ("new GreenP" .. GreenP)
+ --         print ("new GreenP" .. GreenP)
         end
     end
 end
 
 function mainScreen:blueButtonDnHandler()
     if BlueP - 5 < 0 then
-        print("BlueP all gone")
+--      print("BlueP all gone")
 --      Move BlueP remainder of RedP, less than 5 or 0
         diff=BlueP
         BlueP=0
         GreenP=GreenP+diff 
     else
         BlueP = BlueP -5
-        print ("new BlueP " .. BlueP)
+--      print ("new BlueP " .. BlueP)
         if GreenP + 5 <= 100 then
             GreenP = GreenP + 5
-            print ("new GreenP" .. GreenP)
+--          print ("new GreenP" .. GreenP)
         else
-            print("Green too big")
+--          print("Green too big")
             movement=100-GreenP
             GreenP=100
-            print ("new GreenP" .. GreenP)
+--          print ("new GreenP" .. GreenP)
             RedP=RedP+movement
-            print ("new RedP" .. RedP)
+--          print ("new RedP" .. RedP)
         end
     end 
 end
 
 function mainScreen:goButtonHandler()
-print("Enter goButtonHandler")
+--  print("Enter goButtonHandler")
     if turnCtr > 0 then
 	     debug=false
          solve=iterate_funcs(debug)
@@ -330,6 +338,6 @@ print("Enter goButtonHandler")
          amt=sum_table(solve)
          turnCtr=turnCtr-1
     end
-print("Leave goButtonHandler")
+--  print("Leave goButtonHandler")
 end
 -- end button handlers
