@@ -6,13 +6,13 @@ function mainScreen:init(x)
 end
 
 function mainScreen:init_my_things()
---  print("Enter init_my_things")
-   goButton=GoButton(100,300,200,400,"GO", " ", " ")
-   goButton.action=function() self.goButtonHandler() end
--- boxes is an array of box objects that display status of each fund
--- iterate_boxes function runs through this array and updates status
-    boxes={} 
+-- init helper objects
+   gsInitHelperObjects()
+-- controls for the game: go, reset
+   self:gsInitControls()
 
+-- boxes is an array of box objects that display status of each fund
+    boxes={} 
 -- TODO: Put button handler init in seperate function 
     boxes[funds[GREEN]]=Box(100, 100, 200, 200, "GREEN",""," ")       
     greenButtonUp=squareButton("greenButtonUp",{225,160},{40,40},{255,255,255,255},{62, 92, 51, 238},1)
@@ -32,45 +32,27 @@ function mainScreen:init_my_things()
     blueButtonDn=squareButton("blueButtonDn",{625,100},{40,40},{255,255,255,255},{0, 14, 255, 170},2)
     blueButtonDn.action=function() self.blueButtonDnHandler() end    
     
-    new_amt_table={}
-    amt_table={}
---  print("init_my_things GameScreen")
---    test2Button=roundButton("Screen 2")
---    test2Button.action=function () self:changeScreen() end
---  print ("Exit init_my_things")
+
 end
 
 
 -- Activating prints in draw really slows down performance.
 function mainScreen:draw()
-    -- Codea does not automatically call this method
---   print("Enter GameScreen draw")
+-- Codea does not automatically call this method
+--  set background color to yellow
     background(255, 220, 0, 94)
---    print("draw_controls")
     self:draw_controls()
---    print("draw_text")
     self:draw_text()
---    print("set caption on boxes")
--- print need to move this to initialization and event handler
-	if boxes[funds[GREEN]] ~= nil then
---	   print("Call setBot")
-       boxes[funds[GREEN]]:setMid(greenPercentStr)
-	   boxes[funds[GREEN]]:setBot(green_amt())
-	   boxes[funds[RED]]:setMid(redPercentStr)
-	   boxes[funds[RED]]:setBot(red_amt())
-	   boxes[funds[BLUE]]:setMid(bluePercentStr)
-	   boxes[funds[BLUE]]:setBot(blue_amt())
-	end
     self:iterate_boxes()
---    print("Exit GameScreen draw")
 end
 
 function mainScreen:touched(touch)
-    -- Codea does not automatically call this method
- --   print("mainScreen:touched")
- -- GoButton touch handled here
+-- Codea does not automatically call this method
+-- Control Button touch handled here
     goButton:touched(touch)
- --   test2Button:touched(touch)
+	resetButton:touched(touch)
+
+--  Fund Button touch handled here
     greenButtonUp:touched(touch)
     greenButtonDn:touched(touch)
     redButtonUp:touched(touch)
@@ -80,51 +62,53 @@ function mainScreen:touched(touch)
 end
 
 function mainScreen:draw_controls()
--- goButton drawn here
+-- Set Colors of control Buttons
    textcolor = color(0, 0, 0, 255)
    backcolor = color(0,0,0)
+-- Draw Control buttons  
    goButton:draw(textcolor,backcolor)
+   resetButton:draw(textcolor,backcolor)
 end
 
 function mainScreen:draw_text()
     pushStyle()
     font ("Georgia")
+    textcolor = color(0, 0, 0, 255)  
     fill (textcolor)
     fontSize(20)
     textWrapWidth(300)
     textMode(CORNER)
--- need to parameterize the offsets here and in boxes
+-- show total investment amount and turn
     text("Current Amt: " .. amt,100,660)
     text("Turn #: " .. turnCtr,100,635)
+	
+-- show amounts allocated to each fund if change allocation this changes in column1 (2nd number of text)
     text("Green Allocation: " .. green_amt(),100,610) 
     text("Red Allocation: " .. red_amt(),100,585)
     text("Blue Allocation: " .. blue_amt(), 100, 560)
 
-    if turnCtr < 20 then
+    if turnCtr < 20 then -- show percents of return in column2 (2nd number of text) at 20 no new_amt_table
 -- Green Return     
---print("Recompute return_pcnt for Green")   
         return_pcnt=(new_amt_table[GREEN]/amt_table[GREEN]) 
         percent_formatter:set(return_pcnt * 100)
-	    greenPercentStr= GreenP .. "%"
         text("Return: " .. percent_formatter:get() .."%", 400,610)
 -- Red Return 
         return_pcnt= new_amt_table[RED]/amt_table[RED]
-        percent_formatter:set(return_pcnt * 100)
-		redPercentStr= RedP .. "%"	
+        percent_formatter:set(return_pcnt * 100)	
         text("Return: " .. percent_formatter:get() .. "%", 400,585)
 -- Blue Return
         return_pcnt=new_amt_table[BLUE] / amt_table[BLUE]
-        percent_formatter:set(return_pcnt*100)
-	    bluePercentStr= BlueP .. "%"		
+        percent_formatter:set(return_pcnt*100)		
         text("Return: " .. percent_formatter:get() .. "%", 400,560)
     end
     popStyle()
 end 
 
-function mainScreen:changeScreen()
+--function mainScreen:changeScreen()
 --    print("ChangeScreen")
-   currScreen="NewScreen"
-end
+--   currScreen="NewScreen"
+--end
+
 -- ============================================================================================================================
 -- iterate_boxes
 -- called from draw to paint boxes displaying fund amounts
@@ -134,52 +118,65 @@ function mainScreen:iterate_boxes()
 
  scolor = color(100, 100, 218, 255)
  for i=1,#funds do
---     print("iterate_boxes, for loop, i = " .. i)
---     print("funds[i] = " .. funds[i])
     if boxes[funds[i]]~= nil then
+--     set color of interior of box	
 --      ideally would have an array of colors indexed by GREEN, RED, BLUE set up in Constants 
---      print("Try to set scolor in iterate_boxes")
        if i == GREEN then
             scolor=color(62, 92, 51, 238)
+			boxes[funds[GREEN]]:setMid(greenPercentStr)
+	        boxes[funds[GREEN]]:setBot(getAmount(GREEN))
+			greenButtonUp:draw()   
+            greenButtonDn:draw()
        elseif i == RED then
             scolor=color(255, 0, 2, 255)
+			boxes[funds[RED]]:setMid(redPercentStr)
+	        boxes[funds[RED]]:setBot(getAmount(RED))
+			redButtonUp:draw()   
+			redButtonDn:draw()
        elseif i == BLUE then
             scolor=color(0, 14, 255, 170)
-       else
-            scolor=color(255,255,255)
+			boxes[funds[BLUE]]:setMid(bluePercentStr)
+			boxes[funds[BLUE]]:setBot(getAmount(BLUE))
+			blueButtonUp:draw()   
+			blueButtonDn:draw()
        end
---     print("Call boxes draw")
        boxes[funds[i]]:draw(scolor,scolor)
---	   print("Just Drew box " .. i)
-	   end
-    end
---  print("try to draw buttons")
-    greenButtonUp:draw()   
-    greenButtonDn:draw()
-    redButtonUp:draw()   
-    redButtonDn:draw()
-    blueButtonUp:draw()   
-    blueButtonDn:draw()
-
+	end
+ end
 end
 
--- Calculate balances for each account and use my_formatter to round to dollars and cents.
+function getAmount(boxType)
+   if boxType==GREEN then
+	   localAmt=amt*(GreenP/100)
+   elseif boxType==RED then
+   	   localAmt=amt*(RedP/100)
+   elseif boxType==BLUE then
+   	   localAmt=amt*(BlueP/100)
+   end
+   money_formatter:set(localAmt)
+   return money_formatter:get() 
+end
+
+-- Calculate balances for each account and use money_formatter to round to dollars and cents.
 function green_amt()
+-- GreenP = percent associated with green fund stored as an integer
    localAmt=amt*GreenP/100    
-   my_formatter:set(localAmt)
-   return my_formatter:get()
+   money_formatter:set(localAmt)
+   return money_formatter:get()
 end
 
 function red_amt()
+-- RedP = percent associated with red fund stored as an integer
    localAmt=amt*RedP/100    
-   my_formatter:set(localAmt)
-   return my_formatter:get()        
+   money_formatter:set(localAmt)
+   return money_formatter:get()        
 end
 
 function blue_amt()
+-- BlueP = percent associated with blue fund stored as an integer
    localAmt=amt*BlueP/100    
-   my_formatter:set(localAmt)
-   return my_formatter:get()     
+   money_formatter:set(localAmt)
+   return money_formatter:get()     
 end
 
 -- Begin Button Handlers
@@ -188,28 +185,26 @@ end
 
 function mainScreen:greenButtonUpHandler()
     if GreenP + 5 > 100 then
---      print("GreenP all in")
+--  GreenP all in 
         GreenP = 100
         RedP = 0
         BlueP =0
     else
+--   increment GreenP	
         GreenP = GreenP +5
---      o_green=GreenP
---      print ("new greenp" .. GreenP)
+--   decrement other funds, red first, then blue if necessary
         if RedP - 5 >= 0 then
             RedP = RedP - 5
---          print ("new RedP" .. RedP)
         else
-            print("Red too small")
             movement=5-RedP
             RedP=0
-            print ("new RedP" .. RedP)
             BlueP=BlueP-movement
-            print ("new BlueP" .. BlueP)
---            o_red=RedP
---            o_blue=BlueP
         end
     end
+-- reset display strings for buttons
+    greenPercentStr= GreenP .. "%" 
+	redPercentStr= RedP .. "%"	
+	bluePercentStr= BlueP .. "%"
 end
 
 function mainScreen:greenButtonDnHandler()
@@ -233,7 +228,10 @@ function mainScreen:greenButtonDnHandler()
             BlueP=BlueP+movement
             print ("new BlueP" .. BlueP)
         end
-    end    
+    end
+    greenPercentStr= GreenP .. "%" 
+	redPercentStr= RedP .. "%"	
+	bluePercentStr= BlueP .. "%"	
 end
 
 function mainScreen:redButtonUpHandler()
@@ -257,7 +255,11 @@ function mainScreen:redButtonUpHandler()
 --          print ("new GreenP" .. GreenP)
         end
     end  
+    greenPercentStr= GreenP .. "%" 
+	redPercentStr= RedP .. "%"	
+	bluePercentStr= BlueP .. "%"
 end
+
 function mainScreen:redButtonDnHandler()
     if RedP - 5 < 0 then
 --     print("RedP all gone")
@@ -280,6 +282,9 @@ function mainScreen:redButtonDnHandler()
 --          print ("new GreenP" .. BlueP)
         end
     end    
+    greenPercentStr= GreenP .. "%" 
+	redPercentStr= RedP .. "%"	
+	bluePercentStr= BlueP .. "%"
 end
 
 function mainScreen:blueButtonUpHandler()
@@ -303,6 +308,9 @@ function mainScreen:blueButtonUpHandler()
  --         print ("new GreenP" .. GreenP)
         end
     end
+    greenPercentStr= GreenP .. "%" 
+	redPercentStr= RedP .. "%"	
+	bluePercentStr= BlueP .. "%"
 end
 
 function mainScreen:blueButtonDnHandler()
@@ -327,17 +335,117 @@ function mainScreen:blueButtonDnHandler()
 --          print ("new RedP" .. RedP)
         end
     end 
+    greenPercentStr= GreenP .. "%" 
+	redPercentStr= RedP .. "%"	
+	bluePercentStr= BlueP .. "%"	
 end
 
 function mainScreen:goButtonHandler()
---  print("Enter goButtonHandler")
     if turnCtr > 0 then
-	     debug=false
          solve=iterate_funcs(debug)
          print_table(solve,debug)
          amt=sum_table(solve)
          turnCtr=turnCtr-1
     end
---  print("Leave goButtonHandler")
 end
--- end button handlers
+
+function mainScreen:resetButtonHandler()
+   init_globals()
+end
+-- ============================================================================================================================
+--static functions
+--can these be made local?
+--wrap in a local global object?
+-- ============================================================================================================================
+function iterate_funcs(debug)
+ --   print("enter iterate_funcs")
+    amt_table=alloc_amt()
+	-- debug function print's amt_table if 2nd paramter is true
+    print_table(amt_table,false)
+    soln={}
+    for i=1,#funds do
+--      iterate through green, red, blue funds
+        soln[i]=iterate_func[funds[i]](amt_table[i])
+        money_formatter:set(soln[i])
+        soln[i]=money_formatter:get()
+        if debug == true then
+            print ("iterate_func["..i.."] sets boxes[" .. funds[i] .. "] = " .. soln[i])
+        end
+        boxes[funds[i]]:setBot(soln[i])
+    end 
+    new_amt_table=soln
+    return soln
+end
+-- ============================================================================================================================
+--   print_table
+--  debug function that calculates and prints fund percent allocation * new_amt_held
+-- ============================================================================================================================
+function print_table(table,debug)
+--    print("enter print_table")
+    if debug==false then
+        return
+    end
+    for i=1, #table do
+  --    print ("table[" .. i .. "] = " .. table[i])
+        if i == GREEN then
+            print("" .. GreenP/100 .. " * " .. amt .. " = " .. amt_table[i])
+        elseif i == RED then
+            print("" .. RedP/100 .. " * " .. amt .. " ,= " .. amt_table[i])
+        elseif i == BLUE then
+            print("" .. BlueP/100 .. " * " .. amt .. " = " .. amt_table[i])
+        else
+                print ("UNDEFINED TABLE ENTRY")
+        end
+    end
+end
+
+-- ============================================================================================================================
+-- alloc_amt
+-- return table of amounts - rounded to two decimal places - in each fund.
+-- create amt_table
+-- loop through funds
+-- calculate new fund amount based on current funds stored in global variable amt
+-- and store the fund amount in amt_table.
+-- Call formatter object to round to 2 decimal places
+-- ==============================================================================================================================
+function alloc_amt()
+    amt_table={}
+    for i=1, #funds do
+--      ideally would have an array of parameters 
+        if i == GREEN then
+            amt_table[i]=green_amt()
+        elseif i == RED then
+            amt_table[i]=red_amt()
+        elseif i == BLUE then
+            amt_table[i]=blue_amt()
+        else -- more types of funds than defined parameters
+            amt_table[i]=nil
+        end
+        if amt_table[i]~=nil then
+            money_formatter:set(amt_table[i])
+            amt_table[i]=money_formatter:get()
+        end
+    end
+    return amt_table
+end
+
+function mainScreen:gsInitControls()
+-- goButton takes turn
+   goButton=GoButton(100,300,200,400,"GO", " ", " ")
+   goButton.action=function() self.goButtonHandler() end
+-- resetButton starts over
+   resetButton=GoButton(400,300,500,400,"START OVER", " ", " ")
+   resetButton.action=function() self.resetButtonHandler() end
+end
+
+function gsInitHelperObjects()
+-- Formatter to round off decimals for percents	
+    percent_formatter=Formatter(0)	
+	new_amt_table={}
+    amt_table={}
+	debug=false
+	iterate_func={}
+    iterate_func[funds[GREEN]]=function (amt) return Green:pick(debug)*green_amt() end
+    iterate_func[funds[RED]]=function (amt) return Red:pick(debug)*red_amt() end
+    iterate_func[funds[BLUE]]=function (amt) return Blue:pick(debug)*blue_amt() end
+end
