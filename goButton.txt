@@ -2,7 +2,7 @@ GoButton = class()
 
 function GoButton:init(x1, y1, x2, y2, top, mid, bot)
     -- you can accept and set parameters here
-    baseBox=Box(x1, y1, x2, y2, top, mid, bot)
+    self.baseBox=Box(x1, y1, x2, y2, top, mid, bot)
     self.position = vec2(0,0)
     self.size = vec2(0,0)
     self:hitParms(x1,y1,x2,y2)
@@ -28,7 +28,8 @@ function GoButton:hitParms(x1,y1,x2,y2)
 end
 function GoButton:draw(fillColor,strokeColor)
     -- Codea does not automatically call this method
-    baseBox:draw(fillColor,strokeColor)
+--print("Enter GoButton:draw" .. self.baseBox.top)
+    self.baseBox:draw(fillColor,strokeColor)
 end
 
 function GoButton:hit(p)
@@ -50,9 +51,13 @@ function GoButton:touched(touch)
 --     print("enter GoButton:touched")
     if touch.state == ENDED and
         self:hit(vec2(touch.x,touch.y)) then
---      print("Hit for goButton")
+       print("Hit for goButton")
+	   print("touch.x =" .. touch.x)
         if self.action then
             self.action()
+			return true
         end
     end 
+	print("Return false")
+	return false
 end
