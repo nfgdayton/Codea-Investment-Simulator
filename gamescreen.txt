@@ -6,6 +6,13 @@ function mainScreen:init(x)
 end
 
 function mainScreen:init_my_things()
+-- init constants
+   gsWhite=color(0, 0, 0, 255)
+   gsBlack=color(255,255,255,255)
+   gsGreen=color(62, 92, 51, 238)
+   gsRed=color(255, 0, 2, 255)
+   gsBlue=color(0, 14, 255, 170)
+   
 -- init helper objects
    gsInitHelperObjects()
 -- controls for the game: go, reset
@@ -15,7 +22,8 @@ function mainScreen:init_my_things()
     boxes={} 
 -- TODO: Put button handler init in seperate function 
     boxes[funds[GREEN]]=Box(100, 100, 200, 200, "GREEN",""," ")       
-    greenButtonUp=squareButton("greenButtonUp",{225,160},{40,40},{255,255,255,255},{62, 92, 51, 238},1)
+   -- greenButtonUp=squareButton("greenButtonUp",{225,160},{40,40},{255,255,255,255},{62, 92, 51, 238},1)
+    greenButtonUp=squareButton("greenButtonUp",{225,160},{40,40},gsBlack,gsGreen,1)
     greenButtonUp.action=function() self.greenButtonUpHandler() end
     greenButtonDn=squareButton("greenButtonDn",{225,100},{40,40},{255,255,255,255},{62, 92, 51, 238},2)
     greenButtonDn.action=function() self.greenButtonDnHandler() end
@@ -49,22 +57,29 @@ end
 function mainScreen:touched(touch)
 -- Codea does not automatically call this method
 -- Control Button touch handled here
-    goButton:touched(touch)
-	resetButton:touched(touch)
-
+   
+    if goButton:touched(touch) == TRUE then
+	print("goButton:touched returned TRUE")
+	    return TRUE
+	elseif resetButton:touched(touch) == TRUE then
+	print("resetButton:touched returned TRUE")
+	    return TRUE
+	else
 --  Fund Button touch handled here
-    greenButtonUp:touched(touch)
-    greenButtonDn:touched(touch)
-    redButtonUp:touched(touch)
-    redButtonDn:touched(touch)
-    blueButtonUp:touched(touch)
-    blueButtonDn:touched(touch)
+        greenButtonUp:touched(touch)
+		greenButtonDn:touched(touch)
+		redButtonUp:touched(touch)
+		redButtonDn:touched(touch)
+		blueButtonUp:touched(touch)
+		blueButtonDn:touched(touch)
+	end
+	return FALSE
 end
 
 function mainScreen:draw_controls()
 -- Set Colors of control Buttons
-   textcolor = color(0, 0, 0, 255)
-   backcolor = color(0,0,0)
+   textcolor = gsWhite
+   backcolor = gsWhite
 -- Draw Control buttons  
    goButton:draw(textcolor,backcolor)
    resetButton:draw(textcolor,backcolor)
@@ -73,7 +88,7 @@ end
 function mainScreen:draw_text()
     pushStyle()
     font ("Georgia")
-    textcolor = color(0, 0, 0, 255)  
+    textcolor = gsWhite  
     fill (textcolor)
     fontSize(20)
     textWrapWidth(300)
@@ -116,25 +131,24 @@ end
 -- =============================================================================================================================
 function mainScreen:iterate_boxes()
 
- scolor = color(100, 100, 218, 255)
  for i=1,#funds do
     if boxes[funds[i]]~= nil then
 --     set color of interior of box	
 --      ideally would have an array of colors indexed by GREEN, RED, BLUE set up in Constants 
        if i == GREEN then
-            scolor=color(62, 92, 51, 238)
+            scolor=gsGreen
 			boxes[funds[GREEN]]:setMid(greenPercentStr)
 	        boxes[funds[GREEN]]:setBot(getAmount(GREEN))
 			greenButtonUp:draw()   
             greenButtonDn:draw()
        elseif i == RED then
-            scolor=color(255, 0, 2, 255)
+            scolor=gsRed
 			boxes[funds[RED]]:setMid(redPercentStr)
 	        boxes[funds[RED]]:setBot(getAmount(RED))
 			redButtonUp:draw()   
 			redButtonDn:draw()
        elseif i == BLUE then
-            scolor=color(0, 14, 255, 170)
+            scolor=gsBlue
 			boxes[funds[BLUE]]:setMid(bluePercentStr)
 			boxes[funds[BLUE]]:setBot(getAmount(BLUE))
 			blueButtonUp:draw()   
@@ -350,6 +364,7 @@ function mainScreen:goButtonHandler()
 end
 
 function mainScreen:resetButtonHandler()
+print("resetButtonHandler")
    init_globals()
 end
 -- ============================================================================================================================

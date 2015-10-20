@@ -51,9 +51,13 @@ function GoButton:touched(touch)
 --     print("enter GoButton:touched")
     if touch.state == ENDED and
         self:hit(vec2(touch.x,touch.y)) then
---      print("Hit for goButton")
+       print("Hit for goButton")
+	   print("touch.x =" .. touch.x)
         if self.action then
             self.action()
+			return true
         end
     end 
+	print("Return false")
+	return false
 end
