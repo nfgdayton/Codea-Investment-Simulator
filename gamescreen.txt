@@ -1,7 +1,6 @@
 mainScreen = class()
 
 function mainScreen:init(x)
---    print("init_my_things in mainScreen")
     self:init_my_things()
 end
 
@@ -15,45 +14,29 @@ function mainScreen:init_my_things()
    
 -- init helper objects
    gsInitHelperObjects()
+   
 -- controls for the game: go, reset
    self:gsInitControls()
 
 -- boxes is an array of box objects that display status of each fund
+-- TODO: Put button init in seperate function 
     boxes={} 
--- TODO: Put button handler init in seperate function 
-    boxes[funds[GREEN]]=Box(100, 100, 200, 200, "GREEN",""," ")       
--- Buttons point to where the funds are going
--- del me   greenButtonUp=squareButton("greenButtonUp",{225,160},{40,40},gsBlack,gsGreen,3)
--- del me   greenButtonUp.action=function() self.greenButtonUpHandler() end
--- Change greenButtonUp to grnFundToRd
-    grnFundToRd=squareButton("grnFundToRd",{225,160},{40,40},gsBlack,gsGreen,3)
+-- Boxes hold fund information
+    boxes[funds[GREEN]]=Box(100, 100, 200, 200, "GREEN",""," ") 
+    boxes[funds[RED]]=Box(300, 100, 400, 200, "RED",""," ")	
+	boxes[funds[BLUE]]=Box(500, 100, 600, 200, "BLUE",""," ")
+-- Buttons redirect percentage of fund to different color fund
+    grnFundToRd=squareButton("grnFundToRd",{225,160},{40,40},gsBlack,gsRed,3)
     grnFundToRd.action=function() self.grnFundToRdHandler() end
-
---del me    greenButtonDn=squareButton("greenButtonDn",{225,100},{40,40},gsBlack,{62, 92, 51, 238},2)
---del me    greenButtonDn.action=function() self.greenButtonDnHandler() end
-    grnFundToBl=squareButton("grnFundToBl",{225,100},{40,40},gsBlack,gsGreen,3)
+    grnFundToBl=squareButton("grnFundToBl",{225,100},{40,40},gsBlack,gsBlue,3)
     grnFundToBl.action=function() self.grnFundToBlHandler() end
-	
-    boxes[funds[RED]]=Box(300, 100, 400, 200, "RED",""," ")
---del me    redButtonUp=squareButton("redButtonUp",{425,160},{40,40},gsBlack,{255, 0, 2, 255},1)
---del me    redButtonUp.action=function() self.redButtonUpHandler() end
-    rdFundToGrn=squareButton("rdFundToGrn",{425,160},{40,40},gsBlack,gsRed,4)
+    rdFundToGrn=squareButton("rdFundToGrn",{425,160},{40,40},gsBlack,gsGreen,4)
     rdFundToGrn.action=function() self.rdFundToGrnHandler() end
-	
---del me    redButtonDn=squareButton("redButtonDn",{425,100},{40,40},gsBlack,{255, 0, 2, 255},2)  
---del me    redButtonDn.action=function() self.redButtonDnHandler() end
-    rdFundToBl=squareButton("rdFundToBl",{425,100},{40,40},gsBlack,gsRed,3)
+    rdFundToBl=squareButton("rdFundToBl",{425,100},{40,40},gsBlack,gsBlue,3)
     rdFundToBl.action=function() self.rdFundToBlHandler() end
-	
-    boxes[funds[BLUE]]=Box(500, 100, 600, 200, "BLUE",""," ")
---del me    blueButtonUp=squareButton("blueButtonUp",{625,160},{40,40},gsBlack,{0, 14, 255, 170},1)
---del me    blueButtonUp.action=function() self.blueButtonUpHandler() end
-    blFundToGrn=squareButton("rdFundToGrn",{625,160},{40,40},gsBlack,gsBlue,4)
+    blFundToGrn=squareButton("rdFundToGrn",{625,160},{40,40},gsBlack,gsGreen,4)
     blFundToGrn.action=function() self.blFundToGrnHandler() end
-	
---del me    blueButtonDn=squareButton("blueButtonDn",{625,100},{40,40},gsBlack,{0, 14, 255, 170},2)
---del me    blueButtonDn.action=function() self.blueButtonDnHandler() end    
-    blFundToRd=squareButton("rdFundToRd",{625,100},{40,40},gsBlack,gsBlue,4)
+    blFundToRd=squareButton("rdFundToRd",{625,100},{40,40},gsBlack,gsRed,4)
     blFundToRd.action=function() self.blFundToRdHandler() end   
 end
 
@@ -70,27 +53,17 @@ end
 
 function mainScreen:touched(touch)
 -- Codea does not automatically call this method
--- Control Button touch handled here
-   
-    if goButton:touched(touch) == TRUE then
-	print("goButton:touched returned TRUE")
-	    return TRUE
-	elseif resetButton:touched(touch) == TRUE then
-	print("resetButton:touched returned TRUE")
-	    return TRUE
+    if goButton:touched(touch) == true then
+	    return true
+	elseif resetButton:touched(touch) == true then
+	    return true
 	else
---  Fund Button touch handled here
---	Del Me	greenButtonUp:touched(touch)
+--  Fund transfer button touches handled here
         grnFundToRd:touched(touch)
--- del me		greenButtonDn:touched(touch)
 		grnFundToBl:touched(touch)
---del me		redButtonUp:touched(touch)
 		rdFundToGrn:touched(touch)
---del me		redButtonDn:touched(touch)
 		rdFundToBl:touched(touch)
---del me		blueButtonUp:touched(touch)
 		blFundToGrn:touched(touch)
---del me		blueButtonDn:touched(touch)
 		blFundToRd:touched(touch)
 	end
 	return FALSE
@@ -159,25 +132,19 @@ function mainScreen:iterate_boxes()
             scolor=gsGreen
 			boxes[funds[GREEN]]:setMid(greenPercentStr)
 	        boxes[funds[GREEN]]:setBot(getAmount(GREEN))
---DEL ME			greenButtonUp:draw() 
 			grnFundToRd:draw()
---del me            greenButtonDn:draw()
 			grnFundToBl:draw()
        elseif i == RED then
             scolor=gsRed
 			boxes[funds[RED]]:setMid(redPercentStr)
-	        boxes[funds[RED]]:setBot(getAmount(RED))
---del me			redButtonUp:draw() 
+	        boxes[funds[RED]]:setBot(getAmount(RED)) 
 			rdFundToGrn:draw()
---del me			redButtonDn:draw()
 			rdFundToBl:draw()
        elseif i == BLUE then
             scolor=gsBlue
 			boxes[funds[BLUE]]:setMid(bluePercentStr)
 			boxes[funds[BLUE]]:setBot(getAmount(BLUE))
---del me			blueButtonUp:draw()  
 			blFundToGrn:draw()
---del me			blueButtonDn:draw()
 			blFundToRd:draw()
        end
        boxes[funds[i]]:draw(scolor,scolor)
@@ -185,45 +152,12 @@ function mainScreen:iterate_boxes()
  end
 end
 
-function getAmount(boxType)
-   if boxType==GREEN then
-	   localAmt=amt*(GreenP/100)
-   elseif boxType==RED then
-   	   localAmt=amt*(RedP/100)
-   elseif boxType==BLUE then
-   	   localAmt=amt*(BlueP/100)
-   end
-   money_formatter:set(localAmt)
-   return money_formatter:get() 
-end
-
--- Calculate balances for each account and use money_formatter to round to dollars and cents.
-function green_amt()
--- GreenP = percent associated with green fund stored as an integer
-   localAmt=amt*GreenP/100    
-   money_formatter:set(localAmt)
-   return money_formatter:get()
-end
-
-function red_amt()
--- RedP = percent associated with red fund stored as an integer
-   localAmt=amt*RedP/100    
-   money_formatter:set(localAmt)
-   return money_formatter:get()        
-end
-
-function blue_amt()
--- BlueP = percent associated with blue fund stored as an integer
-   localAmt=amt*BlueP/100    
-   money_formatter:set(localAmt)
-   return money_formatter:get()     
-end
-
 -- Begin Button Handlers
 -- to do Wrap these in a seperate class.  invoke methods based on parameter from event handler.
 -- E.G.     greenButtonUp.action=function() self.invokeHandler("greenButtonUp") 
 
 --TODO Add global for change tied to radio buttons
+--TODO can these functions be paramterized?
 
 function mainScreen:grnFundToRdHandler()
     if GreenP - 5 < 0 then
@@ -249,31 +183,6 @@ function mainScreen:grnFundToRdHandler()
 	bluePercentStr= BlueP .. "%"	
 end
 
---[[del me
-function mainScreen:greenButtonUpHandler()
-    if GreenP + 5 > 100 then
---  GreenP all in 
-        GreenP = 100
-        RedP = 0
-        BlueP =0
-    else
---   increment GreenP	
-        GreenP = GreenP +5
---   decrement other funds, red first, then blue if necessary
-        if RedP - 5 >= 0 then
-            RedP = RedP - 5
-        else
-            movement=5-RedP
-            RedP=0
-            BlueP=BlueP-movement
-        end
-    end
--- reset display strings for buttons
-    greenPercentStr= GreenP .. "%" 
-	redPercentStr= RedP .. "%"	
-	bluePercentStr= BlueP .. "%"
-end
---]]
 function mainScreen:grnFundToBlHandler()
     if BlueP + 5 > 100 then
         GreenP = 0
@@ -293,34 +202,7 @@ function mainScreen:grnFundToBlHandler()
 	redPercentStr= RedP .. "%"	
 	bluePercentStr= BlueP .. "%"
 end
---[[ del me
-function mainScreen:greenButtonDnHandler()
-    if GreenP - 5 < 0 then
---      print("GreenP all gone")
---      Move RedP remainder of GreenP, less than 5 or 0
-        diff=GreenP
-        GreenP=0
-        RedP=RedP+diff 
-    else
-        GreenP = GreenP -5
---      print ("new greenp" .. GreenP)
-        if RedP + 5 <= 100 then
-            RedP = RedP + 5
---          print ("new RedP" .. RedP)
-        else
-            print("Red too big")
-            movement=100-RedP
-            RedP=100
-            print ("new RedP" .. RedP)
-            BlueP=BlueP+movement
-            print ("new BlueP" .. BlueP)
-        end
-    end
-    greenPercentStr= GreenP .. "%" 
-	redPercentStr= RedP .. "%"	
-	bluePercentStr= BlueP .. "%"	
-end
---]]
+
 function mainScreen:rdFundToGrnHandler()
     if GreenP + 5 > 100 then
         GreenP = 100
@@ -343,33 +225,7 @@ function mainScreen:rdFundToGrnHandler()
 	redPercentStr= RedP .. "%"	
 	bluePercentStr= BlueP .. "%"
 end    
---[[ del me
-function mainScreen:redButtonUpHandler()
-    if RedP + 5 > 100 then
---      print("Redp all in")
-        GreenP = 0
-        RedP = 100
-        BlueP =0
-    else
-        RedP = RedP +5
---      print ("new RedP ".. RedP)
-        if BlueP - 5 >= 0 then
-            BlueP = BlueP - 5
---          print ("new BlueP" .. BlueP)
-        else
---          print("Blue too small")
-            movement=5-BlueP
-            BlueP=0
---          print ("new BlueP" .. BlueP)
-            GreenP=GreenP-movement
---          print ("new GreenP" .. GreenP)
-        end
-    end  
-    greenPercentStr= GreenP .. "%" 
-	redPercentStr= RedP .. "%"	
-	bluePercentStr= BlueP .. "%"
-end
---]]
+
 function mainScreen:rdFundToBlHandler()
     if BlueP + 5 > 100 then
         GreenP = 0
@@ -389,34 +245,7 @@ function mainScreen:rdFundToBlHandler()
 	redPercentStr= RedP .. "%"	
 	bluePercentStr= BlueP .. "%"
 end
---[[ del me
-function mainScreen:redButtonDnHandler()
-    if RedP - 5 < 0 then
---     print("RedP all gone")
---      Move BlueP remainder of RedP, less than 5 or 0
-        diff=RedP
-        RedP=0
-        BlueP=BlueP+diff 
-    else
-        RedP = RedP -5
---      print ("new RedP" .. RedP)
-        if BlueP + 5 <= 100 then
-            BlueP = BlueP + 5
---          print ("new RedP" .. RedP)
-        else
---          print("Blue too big")
-            movement=100-BlueP
-            BlueP=100
---          print ("new BlueP" .. BlueP)
-            GreenP=GreenP+movement
---          print ("new GreenP" .. BlueP)
-        end
-    end    
-    greenPercentStr= GreenP .. "%" 
-	redPercentStr= RedP .. "%"	
-	bluePercentStr= BlueP .. "%"
-end
---]]
+
 function mainScreen:blFundToGrnHandler()
     if GreenP + 5 > 100 then
         GreenP = 100
@@ -439,33 +268,7 @@ function mainScreen:blFundToGrnHandler()
 	redPercentStr= RedP .. "%"	
 	bluePercentStr= BlueP .. "%"
 end  
---[[
-function mainScreen:blueButtonUpHandler()
-    if BlueP + 5 > 100 then
---      print("BlueP all in")
-        GreenP = 0
-        RedP = 0
-        BlueP = 100
-    else
-        BlueP = BlueP +5
---      print ("new BlueP ".. BlueP)
-        if GreenP - 5 >= 0 then
-            GreenP =GreenP - 5
---          print ("new GreenP" .. GreenP)
-        else
---          print("GreenP too small")
-            movement=5-GreenP
-            GreenP=0
---          print ("new GreenP" .. GreenP)
-            RedP=RedP-movement
- --         print ("new GreenP" .. GreenP)
-        end
-    end
-    greenPercentStr= GreenP .. "%" 
-	redPercentStr= RedP .. "%"	
-	bluePercentStr= BlueP .. "%"
-end
---]]
+
 function mainScreen:blFundToRdHandler()
     if RedP + 5 > 100 then
         RedP = 100
@@ -488,34 +291,7 @@ function mainScreen:blFundToRdHandler()
 	redPercentStr= RedP .. "%"	
 	bluePercentStr= BlueP .. "%"
 end  
---[[
-function mainScreen:blueButtonDnHandler()
-    if BlueP - 5 < 0 then
---      print("BlueP all gone")
---      Move BlueP remainder of RedP, less than 5 or 0
-        diff=BlueP
-        BlueP=0
-        GreenP=GreenP+diff 
-    else
-        BlueP = BlueP -5
---      print ("new BlueP " .. BlueP)
-        if GreenP + 5 <= 100 then
-            GreenP = GreenP + 5
---          print ("new GreenP" .. GreenP)
-        else
---          print("Green too big")
-            movement=100-GreenP
-            GreenP=100
---          print ("new GreenP" .. GreenP)
-            RedP=RedP+movement
---          print ("new RedP" .. RedP)
-        end
-    end 
-    greenPercentStr= GreenP .. "%" 
-	redPercentStr= RedP .. "%"	
-	bluePercentStr= BlueP .. "%"	
-end
---]]
+
 function mainScreen:goButtonHandler()
     if turnCtr > 0 then
          solve=iterate_funcs(debug)
@@ -528,6 +304,16 @@ end
 function mainScreen:resetButtonHandler()
    init_globals()
 end
+
+function mainScreen:gsInitControls()
+-- goButton takes turn
+   goButton=GoButton(100,300,200,400,"GO", " ", " ")
+   goButton.action=function() self.goButtonHandler() end
+-- resetButton starts over
+   resetButton=GoButton(400,300,500,400,"START OVER", " ", " ")
+   resetButton.action=function() self.resetButtonHandler() end
+end
+
 -- ============================================================================================================================
 --static functions
 --can these be made local?
@@ -605,15 +391,6 @@ function alloc_amt()
     return amt_table
 end
 
-function mainScreen:gsInitControls()
--- goButton takes turn
-   goButton=GoButton(100,300,200,400,"GO", " ", " ")
-   goButton.action=function() self.goButtonHandler() end
--- resetButton starts over
-   resetButton=GoButton(400,300,500,400,"START OVER", " ", " ")
-   resetButton.action=function() self.resetButtonHandler() end
-end
-
 function gsInitHelperObjects()
 -- Formatter to round off decimals for percents	
     percent_formatter=Formatter(0)	
@@ -624,4 +401,38 @@ function gsInitHelperObjects()
     iterate_func[funds[GREEN]]=function (amt) return Green:pick(debug)*green_amt() end
     iterate_func[funds[RED]]=function (amt) return Red:pick(debug)*red_amt() end
     iterate_func[funds[BLUE]]=function (amt) return Blue:pick(debug)*blue_amt() end
+end
+
+function getAmount(boxType)
+   if boxType==GREEN then
+	   localAmt=amt*(GreenP/100)
+   elseif boxType==RED then
+   	   localAmt=amt*(RedP/100)
+   elseif boxType==BLUE then
+   	   localAmt=amt*(BlueP/100)
+   end
+   money_formatter:set(localAmt)
+   return money_formatter:get() 
+end
+
+-- Calculate balances for each account and use money_formatter to round to dollars and cents.
+function green_amt()
+-- GreenP = percent associated with green fund stored as an integer
+   localAmt=amt*GreenP/100    
+   money_formatter:set(localAmt)
+   return money_formatter:get()
+end
+
+function red_amt()
+-- RedP = percent associated with red fund stored as an integer
+   localAmt=amt*RedP/100    
+   money_formatter:set(localAmt)
+   return money_formatter:get()        
+end
+
+function blue_amt()
+-- BlueP = percent associated with blue fund stored as an integer
+   localAmt=amt*BlueP/100    
+   money_formatter:set(localAmt)
+   return money_formatter:get()     
 end
